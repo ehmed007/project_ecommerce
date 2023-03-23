@@ -1,0 +1,36 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block category %}
+  <a class="dropdown-item" href="{% url 'home' %}">All Products</a>
+  {% for i in category %}
+    <a class="dropdown-item" href="{% url 'category_filter' i.slug %}">{{i.title|capfirst}}</a>
+  {% endfor %}
+{% endblock category %}
+
+{% block content %}
+  {% if data %}
+    <div class="container">
+      <br>
+      <h3>Product: {{data.title|capfirst}}</h3><hr>
+      <div class="row">
+        <div class="col-md-6 text-center">
+          <img src="{{data.image.url}}" alt="" style="height: 13cm;" >
+        </div>
+        <div class="col-md-6">
+          <h4>{{data.title|capfirst}}</h4>
+          <h5>Category: {{data.category}}</h5>
+          <h5>Price: <strike>{{data.marked_price}}</strike> Rs. {{data.selling_price}} </h5>
+          <a href="{% url 'add_to_cart' data.id %}" class="btn btn-warning">Add to Cart</a>
+          <br>
+          <br>
+          <p class="card-text">Warranty : {{data.warranty}}</p>
+          <p class="card-text">Return Policy : {{data.return_policy}}</p>
+          <p class="card-text">{{data.description}}</p>
+
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  
+{% endblock content %}

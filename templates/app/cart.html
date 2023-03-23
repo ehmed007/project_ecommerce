@@ -1,0 +1,57 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block category %}
+  <a class="dropdown-item" href="{% url 'home' %}">All Products</a>
+  {% for i in category %}
+    <a class="dropdown-item" href="{% url 'category_filter' i.slug %}">{{i.title|capfirst}}</a>
+  {% endfor %}
+{% endblock category %}
+
+
+{% block content %}
+  <h1 class="text-center my-2">My Cart</h1>
+            <table class="table">
+                <thead class="thead-dark" >
+                    <tr>
+                        <th>SN</th>
+                        <th>Product</th>
+                        <th>Rate</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in cart.cartproduct_set.all %}
+                      <tr>
+                        <th>{{forloop.counter}}</th>
+                        <th>{{i.product.title}}</th>
+                        <th>{{i.rate}}</th>
+                        <th>{{i.quantity}}</th>
+                        <th>{{i.subtotal}}</th>
+                        <th>
+                          <a href="{% url 'manage_cart' i.id %}?action=inc" class="btn btn-primary"> + </a>
+                          <a href="{% url 'manage_cart' i.id %}?action=dcr" class="btn btn-warning"> - </a>
+                          <a href="{% url 'manage_cart' i.id %}?action=rmv" class="btn btn-danger"> x </a>
+                        </th>
+                      </tr>
+                    {% endfor %}
+                    <tr>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th>Total</th>
+                      <th>{{cart.total}}</th>
+                      <th></th>
+                    </tr>
+
+                    {% if cart.cartproduct_set.all %}
+                      <tr>
+                        <th><a href="{% url 'checkout' %}"class="btn btn-info">Checkout</a></th>
+                      </tr>                      
+                    {% endif %}
+                </tbody>
+            </table>
+  
+{% endblock content %}

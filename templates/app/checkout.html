@@ -1,0 +1,77 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block category %}
+  <a class="dropdown-item" href="{% url 'home' %}">All Products</a>
+  {% for i in category %}
+    <a class="dropdown-item" href="{% url 'category_filter' i.slug %}">{{i.title|capfirst}}</a>
+  {% endfor %}
+{% endblock category %}
+
+
+{% block content %}
+
+  {% if cart %}
+    
+  <div class="container">
+    <div class="row">
+      <div class="col-sm">
+        <h1 class="text-center my-2">Checkout!</h1>
+            <table class="table">
+                <thead class="thead-dark" >
+                    <tr>
+                        <th>SN</th>
+                        <th>Product</th>
+                        <th>Rate</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in cart.cartproduct_set.all %}
+                      <tr>
+                        <th>{{forloop.counter}}</th>
+                        <th>{{i.product.title}}</th>
+                        <th>{{i.rate}}</th>
+                        <th>{{i.quantity}}</th>
+                        <th>{{i.subtotal}}</th>
+                      </tr>
+                    {% endfor %}
+                    <tr>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th>Total</th>
+                      <th>{{cart.total}}</th>
+                    </tr>
+                </tbody>
+            </table>
+      </div>
+      <div class="col-sm mx-3">
+        <h1 class="mx-2 my-2" >Checkout form</h1>
+        <form class="row g-3" action="{% url 'checkout' %}" method="post">
+            {% csrf_token %}
+            {% for fm in form %}
+                <div class=" mx-3 col-md-6">
+                    <label class="form-label" for= {{field.auto_id}} >{{ fm.label_tag }}</label> 
+                    {{fm}} 
+                    <br> 
+                    {% if fm.errors %}
+                        <div style="color: rgb(255, 2, 2);" >{{fm.errors|striptags}}</div>  
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <div class="mx-3 col-12">
+                <button type="submit" class="btn btn-success">Checkout</button>
+            </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+  {% else %}
+    <h4 class="mx-3 my-3" >no Product is still added to cart!</h4>
+  {% endif %}
+
+  
+{% endblock content %}

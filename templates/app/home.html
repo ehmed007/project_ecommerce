@@ -1,0 +1,47 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block category %}
+  <a class="dropdown-item" href="{% url 'home' %}">All Products</a>
+  {% for i in category %}
+    <a class="dropdown-item" href="{% url 'category_filter' i.slug %}">{{i.title|capfirst}}</a>
+  {% endfor %}
+{% endblock category %}
+
+
+{% block content %}
+  <h1 class="text-center my-2" >Welcome to Our Ecommerce-Store</h1>
+  <div class="container row mx-2 my-2" >
+    <h2 class="mx-2" >
+      {% if category_name %}
+        {{category_name|capfirst}}
+      {% else %}
+        All Products
+      {% endif %}
+    </h2>
+    {% if data %}
+      {% for cat in category %}
+        <h4 class="mx-2">{{cat.title|capfirst}}</h4>
+        {% for i in cat.product_set.all %}
+          <div class="shadow card mx-3 my-3" style="width: 18rem;">
+            <img src="{{ i.image.url }}" class="card-img-top" style="width: 7cm; height: 7cm;" alt="">
+            <div class="card-body">
+              <h5 class="card-title">{{i.title}}</h5>
+              <p class="card-text">{{i.description}}</p>
+              <p class="card-text">Warranty : {{i.warranty}}</p>
+              <p class="card-text">Return Policy : {{i.return_policy}}</p>
+              <p class="card-text">Rs. <strike>{{i.marked_price}}</strike> Rs. {{i.selling_price}}</p>
+
+              <a href="{% url 'add_to_cart' i.id %}" class="btn btn-warning">Add to Cart</a>
+              <a href="{% url 'view_product' i.slug %}" class="btn btn-warning">View</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    {% else %}
+      <h3 class="mx-3">no Products</h3>
+    {% endif %}
+    
+  </div>
+  
+{% endblock content %}
