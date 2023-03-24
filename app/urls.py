@@ -11,5 +11,7 @@ urlpatterns = [
     path('view_cart/',views.view_cart, name='view_cart'),
     path('manage_cart/<int:cp_id>/',views.manage_cart, name='manage_cart'),
     path('check_out/',views.check_out, name='checkout'),
-    path('signup/',views.customer_registration, name='signup'),
+    path('signup/',views.signup, name='signup'),
+    path('login/',views.customer_login, name='login'),
+    path('logout/',views.logout, name='logout'),
 ]

@@ -1,73 +1,89 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecommerce-STORE</title>
-    <link rel="stylesheet" href="{% static 'app/css/bootstrap1.css' %}">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ecommerce-STORE</title>
+  <link rel="stylesheet" href="{% static 'app/css/bootstrap1.css' %}">
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark" style="height: 1.85cm; background-color: rgb(77, 121, 118);" >
-        <div class="container-fluid mx-2">
-          <a class="navbar-brand" href="{% url 'home' %}" style="padding-left: 20px;" > <b> Ecommerce-STORE </b></a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+  <nav class="navbar navbar-expand-lg navbar-dark" style="height: 1.85cm; background-color: rgb(77, 121, 118);">
+    <div class="container-fluid mx-2">
+      <a class="navbar-brand" href="{% url 'home' %}" style="padding-left: 20px;"> <b> Ecommerce-STORE </b></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item active">
-                <a class="nav-link" href="{% url 'about' %}"> <b style="color: white;">About</b> </a>
-              </li>
-              <li class="nav-item active ">
-                <a class="nav-link" href="{% url 'contact' %}"> <b style="color: white;">Contact</b> </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white;"> <b>Products</b>  </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  {% block category %}
-                    <a class="dropdown-item" href="{% url 'home' %}">All Products</a>
-                  {% endblock category %}
-
-                  <!-- <a class="dropdown-item" href="#">Male</a>
-                  <a class="dropdown-item" href="#">Female</a>
-                  <div class="dropdown-divider"></div>z
-                  <a class="dropdown-item" href="#">Something else here</a> -->
-                </div>
-              </li>
-            </ul>
-            
-          </div>
-
-            <form class="d-flex" action="/login/" method="get">
-                <button type="button" class="btn btn-warning"> <b>Login</b> </button>
-              </form>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'about' %}"> <b style="color: white;">About</b> </a>
+          </li>
+          <li class="nav-item active ">
+            <a class="nav-link" href="{% url 'contact' %}"> <b style="color: white;">Contact</b> </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false" style="color: white;"> <b>Products</b> </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              {% block category %}
+              <a class="dropdown-item" href="{% url 'home' %}">All Products</a>
+              {% endblock category %}
             </div>
-            
-            <a href="{% url 'view_cart' %}"><img style="height: 40px; padding-right: 35px;" src="{% static 'app/images/cart.png' %}"></img></a>
+          </li>
+        </ul>
+        {% if not request.user.is_authenticated %}
+          <div style="padding-left: 20px;">
+            <a href="{% url 'signup' %}" class="btn btn-warning"><b>Signup</b></a>
+          </div>
+          <div style="padding-left: 10px;">
+            <a href="{% url 'login' %}" class="btn btn-warning"><b>Login</b></a>
+          </div>
+        {% endif %}
 
-        </nav>
-        
-      
-      <div class="container">
-        <div class="row">
-
-          {% block content %}
-          
-            
-          {% endblock content %}
-
-        </div>
       </div>
+      {% if request.user.is_authenticated %}
+        <form class="d-flex" action="{% url 'logout' %}" method="POST">
+          {% csrf_token %}
+          <button type="submit"  class="btn btn-warning"><b>Logout</b></button>
+        </form>  
+      {% endif %}
+    </div>
+    <a href="{% url 'view_cart' %}"><img style="height: 40px; padding-right: 35px;"
+        src="{% static 'app/images/cart.png' %}"></img></a>
+
+  </nav>
 
 
-    <script src="{% static 'app/js/jquery.js' %}"></script>
-    <script src="{% static 'app/js/bootstrap.js' %}"></script>
-    <script src="{% static 'app/js/popper.js' %}"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+  <div class="container">
+    <div class="row">
+
+      {% block content %}
+
+
+      {% endblock content %}
+
+    </div>
+  </div>
+
+
+  <script src="{% static 'app/js/jquery.js' %}"></script>
+  <script src="{% static 'app/js/bootstrap.js' %}"></script>
+  <script src="{% static 'app/js/popper.js' %}"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+    integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
+    integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+    crossorigin="anonymous"></script>
 </body>
+
 </html>

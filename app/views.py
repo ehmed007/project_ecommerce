@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect,HttpResponse
 from .models import Product, Category, Cart, CartProduct, Category, Customer
-from .forms import Checkoutform, CustomerRegistrationForm
+from .forms import Checkoutform, CustomerRegistrationForm, login_form
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login as do_login, logout as do_logout
+from django.contrib import messages
 
 # Create your views here.
 
@@ -27,8 +29,6 @@ def contact(request):
         subject = 'noreply'
         message=f"This is automatically generated email\nplease don't reply\nThank you Mr/Mrs {name.upper()} for your comments\n"
         send_mail(subject, message, 'bitf20a529@pucit.edu.pk' , [mail],fail_silently=False)
-        # except:
-            # return HttpResponse('<h1>error created!</h1>')
         return HttpResponseRedirect('/')
 
     return render(request, 'app/contact.html',{'category':category})
@@ -121,44 +121,79 @@ def manage_cart(request,cp_id):
     return HttpResponseRedirect("/view_cart/")
 
 def check_out(request):
-    category = Category.objects.all()
-    cart_id = request.session.get("cart_id", None)
-    if cart_id:
-        cart = Cart.objects.get(id=cart_id)
-        if len(cart.cartproduct_set.all()) == 0:
+    if request.user.is_authenticated:
+        category = Category.objects.all()
+        cart_id = request.session.get("cart_id", None)
+        if cart_id:
+            cart = Cart.objects.get(id=cart_id)
+            if len(cart.cartproduct_set.all()) == 0:
+                cart = None
+            fm = Checkoutform(request.POST)
+            if fm.is_valid():
+                fm.instance.cart = cart
+                fm.instance.subtotal = cart.total
+                fm.instance.discount = 0
+                fm.instance.total = cart.total
+                fm.instance.order_status = "Order Received"
+                fm.save()
+                del request.session['cart_id']
+                return HttpResponseRedirect('/')
+        else:
             cart = None
-        fm = Checkoutform(request.POST)
-        if fm.is_valid():
-            fm.instance.cart = cart
-            fm.instance.subtotal = cart.total
-            fm.instance.discount = 0
-            fm.instance.total = cart.total
-            fm.instance.order_status = "Order Received"
-            fm.save()
-            del request.session['cart_id']
-            return HttpResponseRedirect('/')
+        fm = Checkoutform()    
+        return render(request, 'app/checkout.html',{'category':category,'cart':cart,"form":fm})
     else:
-        cart = None
-    fm = Checkoutform()    
-    return render(request, 'app/checkout.html',{'category':category,'cart':cart,"form":fm})
+        return HttpResponseRedirect('/login/')
 
 
-def customer_registration(request):
-    category = Category.objects.all()
-    if request.method == 'POST':
-        form = CustomerRegistrationForm(request.POST)
-        if form.is_valid():
-            username = request.POST['username']
-            password = request.POST['password']
-            email = request.POST['email']
-            user = User.objects.create(username=username, email=email, password=password)
-            form.instance.user = user
+def signup(request):
+    if not request.user.is_authenticated:
+        category = Category.objects.all()
+        if request.method == 'POST':
+            form = CustomerRegistrationForm(request.POST)
             if form.is_valid():
-                form.save()
-                form = CustomerRegistrationForm()
-                return render(request, 'app/customer_reg.html',{'category':category,'fm':form})
-        return render(request, 'app/customer_reg.html',{'category':category,'fm':form})
+                username = request.POST['username']
+                password = request.POST['password']
+                email = request.POST['email']
+                user = User.objects.create_user(username,email,password)
+                form.instance.user = user
+                if form.is_valid():
+                    form.save()
+                    form = CustomerRegistrationForm()
+                    return render(request, 'app/signup.html',{'category':category,'fm':form})
+            return render(request, 'app/signup.html',{'category':category,'fm':form})
 
-        
-    form = CustomerRegistrationForm()
-    return render(request, 'app/customer_reg.html',{'category':category,'fm':form})
+        form = CustomerRegistrationForm()
+        return render(request, 'app/signup.html',{'category':category,'fm':form})
+    else:
+        return HttpResponseRedirect('/')
+
+def customer_login(request):
+    if not request.user.is_authenticated:
+        category = Category.objects.all()
+        if request.method == 'POST':
+            form = login_form(request=request, data=request.POST)
+            if form.is_valid():
+                username = request.POST['username']
+                password = request.POST['password']
+                usr = authenticate(username=username,password=password)
+                if usr is not None:
+                    do_login(request, usr)
+                    return HttpResponseRedirect('/')
+            messages.error(request, 'Incorrect username or password', extra_tags='login')
+            return render(request, 'app/login.html',{'category':category,'fm':form})
+
+        form = login_form()
+        return render(request, 'app/login.html',{'category':category,'fm':form})
+    else:
+        return HttpResponseRedirect('/')
+
+def logout(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            do_logout(request)
+            return HttpResponseRedirect('/login/')
+        else:
+            return HttpResponse('<h1>404 page not found!</h1>')
+    else:
+        return HttpResponseRedirect('/login/')
