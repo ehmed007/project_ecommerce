@@ -28,7 +28,10 @@ def contact(request):
         msg = request.POST.get('msg')
         subject = 'noreply'
         message=f"This is automatically generated email\nplease don't reply\nThank you Mr/Mrs {name.upper()} for your comments\n"
-        send_mail(subject, message, 'bitf20a529@pucit.edu.pk' , [mail],fail_silently=False)
+        try:
+            send_mail(subject, message, 'bitf20a529@pucit.edu.pk' , [mail],fail_silently=False)
+        except:
+            return HttpResponse('<h1>server error!</h1>')
         return HttpResponseRedirect('/')
 
     return render(request, 'app/contact.html',{'category':category})
