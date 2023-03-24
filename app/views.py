@@ -41,7 +41,7 @@ def view_product(request,slug):
     category = Category.objects.all()
     return render(request, 'app/view_one_product.html',{'data':data,'category':category})
 
-def category_filter(request, slug):
+def category_filter(request, slug):   
     c_id = Category.objects.filter(slug=slug)
     data = Product.objects.filter(category=c_id[0].id)
     category = Category.objects.all()
